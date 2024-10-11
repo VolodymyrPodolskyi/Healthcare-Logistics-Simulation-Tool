@@ -19,19 +19,19 @@ How to Run the Simulation:
 
     Install SimPy:
 
-    bash
+    
 
 pip install simpy
 
 Run the Script:
 
-bash
+
 
     python healthcare_simulation.py
 
 Sample Output:
 
-python
+
 
 Patient 1 arrives at 1.03
 Patient 1 starts registration at 1.03
