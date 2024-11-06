@@ -9,10 +9,10 @@ from processes import patient_process
 class Hospital:
     """Manages hospital resources and processes."""
 
-    def __init__(self, env, config, update_gui_callback=None):
+    def __init__(self, env, config):
         self.env = env
         self.config = config
-        self.update_gui_callback = update_gui_callback
+        
         # Staff resources
         self.doctor = PriorityResource(env, capacity=config['NUM_DOCTORS'])
         self.nurse = PriorityResource(env, capacity=config['NUM_NURSES'])
@@ -29,17 +29,35 @@ class Hospital:
         # Equipment resources
         self.medical_equipment = PriorityResource(env, capacity=config['NUM_MEDICAL_EQUIPMENT'])
         
-        # Staff members
+        # Initialize resources and staff
+        self.initialize_resources()
         self.initialize_staff()
 
         # Data collection
         self.patients = []  # List to store all patient objects for analysis
         self.resource_log = []  # Log for resource utilization
 
-        # Dynamic processes
-        env.process(self.collect_resource_utilization())
+        # Start data collection after initialization
         env.process(self.monitor_patient_influx())
-
+        env.process(self.collect_resource_utilization())
+    def initialize_resources(self):
+        """Initializes hospital resources based on the configuration."""
+        # Staff resources
+        self.doctor = simpy.PriorityResource(self.env, capacity=self.config['NUM_DOCTORS'])
+        self.nurse = simpy.PriorityResource(self.env, capacity=self.config['NUM_NURSES'])
+        self.specialist = simpy.PriorityResource(self.env, capacity=self.config['NUM_SPECIALISTS'])
+        self.admin_staff = simpy.PriorityResource(self.env, capacity=self.config['NUM_ADMIN_STAFF'])
+        self.support_staff = simpy.PriorityResource(self.env, capacity=self.config['NUM_SUPPORT_STAFF'])
+    
+        # Facility resources
+        self.bed = simpy.PriorityResource(self.env, capacity=self.config['NUM_BEDS'])
+        self.operating_room = simpy.PriorityResource(self.env, capacity=self.config['NUM_OPERATING_ROOMS'])
+        self.lab = simpy.PriorityResource(self.env, capacity=self.config['NUM_LABS'])
+        self.imaging_center = simpy.PriorityResource(self.env, capacity=self.config['NUM_IMAGING_CENTERS'])
+        
+        # Equipment resources
+        self.medical_equipment = simpy.PriorityResource(self.env, capacity=self.config['NUM_MEDICAL_EQUIPMENT'])
+    
     def initialize_staff(self):
         """Initializes staff members based on the configuration."""
         c = self.config
@@ -110,14 +128,13 @@ class Hospital:
                 'doctor_utilization': self.doctor.count / self.config['NUM_DOCTORS'],
                 'nurse_utilization': self.nurse.count / self.config['NUM_NURSES'],
                 'bed_utilization': self.bed.count / self.config['NUM_BEDS'],
-                'specialist_utilization': self.specialist.count / self.config['NUM_SPECIALISTS'],
-                'operating_room_utilization': self.operating_room.count / self.config['NUM_OPERATING_ROOMS'],
-                'lab_utilization': self.lab.count / self.config['NUM_LABS'],
-                'imaging_center_utilization': self.imaging_center.count / self.config['NUM_IMAGING_CENTERS'],
-                'medical_equipment_utilization': self.medical_equipment.count / self.config['NUM_MEDICAL_EQUIPMENT']
+                # ... (other resources)
             }
+            # Debugging: Print the utilization dictionary
+            print(f'Collecting utilization at time {self.env.now}: {utilization}')
+            
             self.resource_log.append(utilization)
-            # Trigger the GUI to update the plots
-            if self.update_gui_callback:
-                self.update_gui_callback()
-            yield self.env.timeout(1)  # Collect data every 1 minute
+            # Schedule GUI update in main thread
+            #if self.update_gui_callback:
+            #    self.update_gui_callback()
+        yield self.env.timeout(1)  # Collect data every 1 minute
