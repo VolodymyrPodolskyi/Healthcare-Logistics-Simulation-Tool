@@ -15,29 +15,26 @@ This Python application uses the simpy library to simulate patient flow and reso
         The simulation runs for a total of 480 minutes (8 hours).
         It prints out timestamps for when each patient arrives, starts, and finishes each process, allowing you to trace the flow and identify potential bottlenecks.
 
-How to Run the Simulation:
+Project Structure (from version 2.0 and higher)
 
-    Install SimPy:
 
+healthcare_simulation/
+├── main.py
+├── entities.py
+├── hospital.py
+├── processes.py
+├── data_analysis.py
+
+    entities.py: Contains the Patient and StaffMember classes.
+    hospital.py: Contains the Hospital class.
+    processes.py: Contains functions related to patient processes.
+    data_analysis.py: Contains functions for data analysis and visualization.
+    main.py: The main script to run the simulation.
+
+
+
+    The code is organized into modules, each handling specific functionalities.
+ 
+    Classes (Patient, StaffMember, Hospital) encapsulate data and behavior.
     
-
-pip install simpy
-
-Run the Script:
-
-
-
-    python healthcare_simulation.py
-
-Sample Output:
-
-
-
-Patient 1 arrives at 1.03
-Patient 1 starts registration at 1.03
-Patient 1 finishes registration at 3.03
-Patient 1 starts triage at 3.03
-Patient 1 finishes triage at 9.03
-Patient 1 starts treatment at 9.03
-Patient 2 arrives at 3.62
-Patient 2 starts registration at 3.62
+    Different aspects of the simulation (entities, processes, analysis) are handled separately.
