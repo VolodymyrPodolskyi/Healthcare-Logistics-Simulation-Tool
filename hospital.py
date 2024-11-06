@@ -9,9 +9,10 @@ from processes import patient_process
 class Hospital:
     """Manages hospital resources and processes."""
 
-    def __init__(self, env, config):
+    def __init__(self, env, config, update_gui_callback=None):
         self.env = env
         self.config = config
+        self.update_gui_callback = update_gui_callback
         # Staff resources
         self.doctor = PriorityResource(env, capacity=config['NUM_DOCTORS'])
         self.nurse = PriorityResource(env, capacity=config['NUM_NURSES'])
@@ -104,7 +105,7 @@ class Hospital:
         """Collects data on resource utilization at each time step."""
         while True:
             # Record the utilization of each resource
-            self.resource_log.append({
+            utilization = {
                 'time': self.env.now,
                 'doctor_utilization': self.doctor.count / self.config['NUM_DOCTORS'],
                 'nurse_utilization': self.nurse.count / self.config['NUM_NURSES'],
@@ -114,5 +115,9 @@ class Hospital:
                 'lab_utilization': self.lab.count / self.config['NUM_LABS'],
                 'imaging_center_utilization': self.imaging_center.count / self.config['NUM_IMAGING_CENTERS'],
                 'medical_equipment_utilization': self.medical_equipment.count / self.config['NUM_MEDICAL_EQUIPMENT']
-            })
+            }
+            self.resource_log.append(utilization)
+            # Trigger the GUI to update the plots
+            if self.update_gui_callback:
+                self.update_gui_callback()
             yield self.env.timeout(1)  # Collect data every 1 minute
